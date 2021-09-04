@@ -21,11 +21,11 @@ public class LetterMathModule : MonoBehaviour
     public TextMesh[] ButtonTexts;
     public TextMesh ScreenText;
 
-    private readonly string letters = "_ABCDEFGHIJ";
+    private readonly string letters = "_ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private int[] characters = new int[2];
     private bool _operator; //False = -, true = +
     private int answer;
-    private int[] buttonText = new int[3];
+    private int[] buttonText = new int[6];
     private int correctButton;
 
 
@@ -48,7 +48,7 @@ public class LetterMathModule : MonoBehaviour
             buttonText[i] = answer;
         for (int i = 0; i < Buttons.Length; i++)
             while (i != correctButton && (buttonText[i] == answer || Enumerable.Range(0, 3).Any(x => x != i && buttonText[x] == buttonText[i])))
-                buttonText[i] = Rnd.Range(-9, 21);
+                buttonText[i] = Rnd.Range(-25, 50);
     }
 
     // Use this for initialization
@@ -95,7 +95,7 @@ public class LetterMathModule : MonoBehaviour
         Debug.LogFormat("[Letter Math #{0}] {1}", _moduleID, string.Format(message, args));
     }
 #pragma warning disable 0414
-    private readonly string TwitchHelpMessage = "!{0} press 1-3 | Presses buttons 1-3 in reading order.";
+    private readonly string TwitchHelpMessage = "!{0} press 1-6 | Presses buttons 1-6 in reading order.";
 #pragma warning restore 0414
 
     KMSelectable[] ProcessTwitchCommand(string command)
