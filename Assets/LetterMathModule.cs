@@ -21,7 +21,7 @@ public class LetterMathModule : MonoBehaviour
     public TextMesh[] ButtonTexts;
     public TextMesh ScreenText;
 
-    private readonly string letters = "_ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    private readonly string letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     private int[] characters = new int[2];
     private bool _operator; //False = -, true = +
     private int answer;
@@ -33,14 +33,14 @@ public class LetterMathModule : MonoBehaviour
     {
         _moduleID = _moduleIdCounter++;
         for (int i = 0; i < 2; i++)
-            characters[i] = Rnd.Range(1, letters.Length);
+            characters[i] = Rnd.Range(0, letters.Length);
 
         _operator = Rnd.Range(0, 2) == 0;
 
         if (_operator)
-            answer = characters[0] + characters[1];
+            answer = (characters[0] + 1) + (characters[1] + 1);
         else
-            answer = characters[0] - characters[1];
+            answer = (characters[0] + 1) - (characters[1] + 1);
 
         correctButton = Rnd.Range(0, Buttons.Length);
 
@@ -102,7 +102,7 @@ public class LetterMathModule : MonoBehaviour
     {
         if (_moduleSolved)
             return null;
-        var m = Regex.Match(command, @"^\s*(press\s+)?([1-3])\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        var m = Regex.Match(command, @"^\s*(press\s+)?([1-6])\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
         if (!m.Success)
             return null;
         return new[] { Buttons[m.Groups[2].Value[0] - '1'] };
