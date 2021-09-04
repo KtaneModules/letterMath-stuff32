@@ -5,12 +5,14 @@ using System.Linq;
 using UnityEngine;
 using KModkit;
 using Rnd = UnityEngine.Random;
+using System.Text.RegularExpressions;
 
 public class LetterMathModule : MonoBehaviour
 {
 
-    static int _moduleIdCounter = 1;
-    int _moduleID = 0;
+    private static int _moduleIdCounter = 1;
+    private int _moduleID = 0;
+    private bool _moduleSolved;
 
     public KMBombModule Module;
     public KMBombInfo Bomb;
@@ -47,9 +49,6 @@ public class LetterMathModule : MonoBehaviour
         for (int i = 0; i < Buttons.Length; i++)
             while (i != correctButton && (buttonText[i] == answer || Enumerable.Range(0, 3).Any(x => x != i && buttonText[x] == buttonText[i])))
                 buttonText[i] = Rnd.Range(-9, 21);
-
-
-        
     }
 
     // Use this for initialization
@@ -60,9 +59,7 @@ public class LetterMathModule : MonoBehaviour
             Buttons[btn].OnInteract = ButtonPressed(btn);
             ButtonTexts[btn].text = buttonText[btn].ToString();
         }
-            
         ScreenText.text = letters[characters[0]].ToString() + (_operator ? " + " : " - ") + letters[characters[1]].ToString();
-
         Log("The display is {0}", ScreenText.text);
         Log("The correct answer that has been generated is {0}", answer);
     }
@@ -73,25 +70,50 @@ public class LetterMathModule : MonoBehaviour
         {
             Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.ButtonPress, Buttons[btn].transform);
             Buttons[btn].AddInteractionPunch();
-            if (btn == correctButton)
+            if (!_moduleSolved)
             {
-                Module.HandlePass();
-                Log("Correct button has been pressed. Module solved!");
-            }
-            else
-            {
-                Module.HandleStrike();
-                Log("Incorrect button has been pressed. You have pressed {0}. I was expecting {1}.", buttonText[btn], answer);
+                if (btn == correctButton)
+                {
+                    _moduleSolved = true;
+                    Module.HandlePass();
+                    ScreenText.text = "✓";
+                    Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.CorrectChime, transform);
+                    Log("Correct button has been pressed. Module solved!");
+                }
+                else
+                {
+                    Module.HandleStrike();
+                    Log("Incorrect button has been pressed. You have pressed {0}. I was expecting {1}.", buttonText[btn], answer);
+                }
             }
             return false;
-
         };
     }
 
     private void Log(string message, params object[] args)
     {
         Debug.LogFormat("[Letter Math #{0}] {1}", _moduleID, string.Format(message, args));
-        
     }
-    
+#pragma warning disable 0414
+    private readonly string TwitchHelpMessage = "!{0} press 1-3 | Presses buttons 1-3 in reading order.";
+#pragma warning restore 0414
+
+    KMSelectable[] ProcessTwitchCommand(string command)
+    {
+        if (_moduleSolved)
+            return null;
+        var m = Regex.Match(command, @"^\s*(press\s+)?([1-3])\s*$", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant);
+        if (!m.Success)
+            return null;
+        return new[] { Buttons[m.Groups[2].Value[0] - '1'] };
+    }
+
+    IEnumerator TwitchHandleForcedSolve()
+    {
+        if (!_moduleSolved)
+        {
+            Buttons[correctButton].OnInteract();
+            yield return new WaitForSeconds(.1f);
+        }
+    }
 }
