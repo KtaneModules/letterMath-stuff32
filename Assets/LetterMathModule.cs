@@ -25,8 +25,11 @@ public class LetterMathModule : MonoBehaviour
     private int[] characters = new int[2];
     private bool _operator; //False = -, true = +
     private int answer;
-    private int[] buttonText = new int[6];
+    private int[] choices = new int[6];
     private int correctButton;
+    public Color[] colors;
+    private string[] colorOptions = { "red", "white", "blue", "green", "magenta", "yellow" };
+    private string[] textColors = new string[6];
 
 
     void Awake()
@@ -45,23 +48,40 @@ public class LetterMathModule : MonoBehaviour
         correctButton = Rnd.Range(0, Buttons.Length);
 
         for (int i = 0; i < Buttons.Length; i++)
-            buttonText[i] = answer;
+            choices[i] = answer;
         for (int i = 0; i < Buttons.Length; i++)
-            while (i != correctButton && (buttonText[i] == answer || Enumerable.Range(0, 3).Any(x => x != i && buttonText[x] == buttonText[i])))
-                buttonText[i] = Rnd.Range(-25, 50);
+            while (i != correctButton && (choices[i] == answer || Enumerable.Range(0, 3).Any(x => x != i && choices[x] == choices[i])))
+                choices[i] = Rnd.Range(-25, 50);
+
+
+
+        for (int btn = 0; btn < Buttons.Length; btn++)
+        {
+            int randColor = Rnd.Range(0, colors.Length);
+            textColors[btn] = colorOptions[randColor];
+            ButtonTexts[btn].GetComponent<TextMesh>().color = colors[randColor];
+        }
+
+       
+
+
     }
 
     // Use this for initialization
     void Start()
     {
+        ColorChange();
         for (int btn = 0; btn < Buttons.Length; btn++)
         {
             Buttons[btn].OnInteract = ButtonPressed(btn);
-            ButtonTexts[btn].text = buttonText[btn].ToString();
+            ButtonTexts[btn].text = choices[btn].ToString();
+
+
         }
         ScreenText.text = letters[characters[0]].ToString() + (_operator ? " + " : " - ") + letters[characters[1]].ToString();
         Log("The display is {0}", ScreenText.text);
-        Log("The correct answer that has been generated is {0}", answer);
+        Log("The correct answer to the equation that has been generated is {0}", answer);
+        Log("The correct button to press is button {0} which says {1} on it.", correctButton, choices[correctButton]);
     }
 
     private KMSelectable.OnInteractHandler ButtonPressed(int btn)
@@ -83,11 +103,43 @@ public class LetterMathModule : MonoBehaviour
                 else
                 {
                     Module.HandleStrike();
-                    Log("Incorrect button has been pressed. You have pressed {0}. I was expecting {1}.", buttonText[btn], answer);
+                    Log("Incorrect button has been pressed. You have pressed {0}. I was expecting {1} which is actually {2}.", choices[btn], choices[correctButton], answer);
                 }
             }
             return false;
         };
+    }
+
+    void ColorChange()
+    {
+        for (int i = 0; i < Buttons.Length; i++)
+        {
+            Debug.Log(textColors[i]);
+            switch (textColors[i])
+            {
+                
+                case "red":
+                    choices[i] -= 13;
+                    break;
+                case "white":
+                    choices[i] += (Bomb.GetBatteryCount() * Bomb.GetOffIndicators().Count());
+                    break;
+                case "blue":
+                    choices[i] -= (Bomb.GetOnIndicators().Count() - Bomb.GetSerialNumberNumbers().Last());
+                    break;
+                case "green":
+                    choices[i] += (Bomb.GetPortCount() + Bomb.GetPortPlateCount());
+                    break;
+                case "magenta":
+                    choices[i] += (Bomb.GetModuleNames().Count() * 2);
+                    break;
+                case "yellow":
+                    choices[i] -= ((Bomb.GetPortPlateCount() - Bomb.GetBatteryHolderCount()) * 3);
+                    break;
+
+            }
+
+        }
     }
 
     private void Log(string message, params object[] args)
