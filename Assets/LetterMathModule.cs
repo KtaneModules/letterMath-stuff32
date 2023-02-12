@@ -81,7 +81,7 @@ public class LetterMathModule : MonoBehaviour
         ScreenText.text = letters[characters[0]].ToString() + (_operator ? " + " : " - ") + letters[characters[1]].ToString();
         Log("The display is {0}", ScreenText.text);
         Log("The correct answer to the equation that has been generated is {0}", answer);
-        Log("The correct button to press is button {0} which says {1} on it.", correctButton, choices[correctButton]);
+        Log("The correct button to press is button {0} which says {1} on it.", correctButton+1, choices[correctButton]);
     }
 
     private KMSelectable.OnInteractHandler ButtonPressed(int btn)
@@ -99,6 +99,7 @@ public class LetterMathModule : MonoBehaviour
                     ScreenText.text = "✓";
                     Audio.PlayGameSoundAtTransform(KMSoundOverride.SoundEffect.CorrectChime, transform);
                     Log("Correct button has been pressed. Module solved!");
+                    StartCoroutine(CorrectAnim());
                 }
                 else
                 {
@@ -108,6 +109,19 @@ public class LetterMathModule : MonoBehaviour
             }
             return false;
         };
+    }
+
+    IEnumerator CorrectAnim()
+    {
+        string CorrectText = "GG!✓✓✓";
+        for (int i = 0; i < Buttons.Length; i++)
+        {
+            ButtonTexts[i].color = new Color32(6, 190, 0, 255);
+            ButtonTexts[i].text = CorrectText[i].ToString();
+            yield return new WaitForSeconds(0.2f);
+
+        }
+        yield return null;
     }
 
     void ColorChange()

@@ -14,7 +14,7 @@ MonoBehaviour:
   id: letterMathModule
   title: Letter Math
   author: GoodHood
-  description: 
-  version: 1.0
+  description: "These numbers don't look right to me.\r"
+  version: 2.1
   outputFolder: build
-  previewImage: {fileID: 0}
+  previewImage: {fileID: 2800000, guid: 3bb88035356c9684f9b926fd6af835ac, type: 3}
